@@ -7,11 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Preparar projeto (usa MusicFlow.zip se existir no repositorio)
+      - name: Preparar projeto (usa SpotFlow.zip ou MusicFlow.zip se existir no repositorio)
         run: |
-          if [ -f MusicFlow.zip ]; then
+          Z=""
+          if [ -f SpotFlow.zip ]; then Z=SpotFlow.zip; elif [ -f MusicFlow.zip ]; then Z=MusicFlow.zip; fi
+          if [ -n "$Z" ]; then
             mkdir -p _proj
-            unzip -q -o MusicFlow.zip -d _proj
+            unzip -q -o "$Z" -d _proj
             d=$(find _proj -maxdepth 2 -name settings.gradle.kts -printf '%h\n' | head -n1)
             if [ -z "$d" ]; then echo "ERRO: settings.gradle.kts nao encontrado dentro do zip"; exit 1; fi
             echo "PROJ_DIR=$d" >> "$GITHUB_ENV"
@@ -31,5 +33,5 @@ jobs:
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: MusicFlow-debug-apk
+          name: SpotFlow-debug-apk
           path: ${{ env.PROJ_DIR }}/app/build/outputs/apk/debug/app-debug.apk
